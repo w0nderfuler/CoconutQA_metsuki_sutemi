@@ -5,5 +5,5 @@ HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 LOGIN_ENDPOINT = "/login"
 REGISTER_ENDPOINT = "/register"
 ENDPOINT_MOVIES = "/movies"
-#LOGIN_ADMIN = "" убрал креды админа
-#PASSWORD_ADMIN = ""
+LOGIN_ADMIN = "api1@gmail.com"
+PASSWORD_ADMIN = "asdqwe123Q"

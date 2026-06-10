@@ -65,6 +65,19 @@ def created_movie(login_admin):
     yield movie
     login_admin.movies_api.delete_movie_by_id(movie_id)
 
+@pytest.fixture()
+def created_published_movie(login_admin):
+    movie_data = MovieData.create_movie()
+    movie_data["published"] = True
+
+    response = login_admin.movies_api.create_movie(movie_data)
+    movie = response.json()
+    movie_id = movie["id"]
+
+    yield movie
+
+    login_admin.movies_api.delete_movie_by_id(movie_id)
+
 
 @pytest.fixture()
 def movie_for_delete(login_admin):
