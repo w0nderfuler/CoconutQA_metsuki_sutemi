@@ -1,5 +1,6 @@
 from Cinescope.constants import LOGIN_ENDPOINT, AUTH_URL
 from Cinescope.custom_requester.custom_requester import CustomRequester
+from Cinescope.resources.models.user_model import UserLoginModel
 
 
 class AuthAdmin(CustomRequester):
@@ -15,7 +16,10 @@ class AuthAdmin(CustomRequester):
         )
 
     def authenticate_admin(self, admin_data):
-        login_data = {"email": admin_data["email"], "password": admin_data["password"]}
+        login_data = UserLoginModel(
+            email=admin_data.email,
+            password=admin_data.password,
+        )
 
         response = self.login_admin(login_data).json()
         if "accessToken" not in response:
