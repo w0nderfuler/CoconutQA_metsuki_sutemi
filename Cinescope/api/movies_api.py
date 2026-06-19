@@ -11,7 +11,7 @@ class MoviesAPI(CustomRequester):
             method="GET",
             endpoint=ENDPOINT_MOVIES,
             params=params,
-            expected_status=expected_status
+            expected_status=expected_status,
         )
 
     def create_movie(self, movie_data, params=None, expected_status=201):

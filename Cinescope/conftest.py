@@ -13,6 +13,7 @@ from Cinescope.resources.models.user_model import (
     UserLoginModel,
     UserUpdateModel,
 )
+
 faker = Faker()
 
 
@@ -39,13 +40,12 @@ def test_user() -> RequestUserRegisterModel:
     password = MovieData.generate_password()
     email = faker.unique.email()
     return RequestUserRegisterModel(
-        email = email,
-        fullName = faker.name(),
-        password = password,
-        passwordRepeat = password,
-        roles = [Roles.USER],
+        email=email,
+        fullName=faker.name(),
+        password=password,
+        passwordRepeat=password,
+        roles=[Roles.USER],
     )
-
 
 
 @pytest.fixture()
@@ -75,6 +75,7 @@ def created_movie(super_admin):
     yield movie
     super_admin.api.movies_api.delete_movie_by_id(movie_id)
 
+
 @pytest.fixture()
 def created_published_movie(super_admin):
     movie_data = MovieData.create_movie()
@@ -102,9 +103,11 @@ def movie_for_delete(super_admin):
     except ValueError:
         pass
 
+
 @pytest.fixture()
 def user_session():
     user_pool = []
+
     def _create_user_session():
         session = requests.Session()
         user_session = ApiManager(session)
@@ -116,6 +119,7 @@ def user_session():
     for user in user_pool:
         user.close_session()
 
+
 @pytest.fixture()
 def super_admin(user_session):
     new_session = user_session()
@@ -124,10 +128,11 @@ def super_admin(user_session):
         SuperAdminCreds.USERNAME,
         SuperAdminCreds.PASSWORD,
         [Roles.SUPER_ADMIN.value],
-        new_session
+        new_session,
     )
     super_admin.api.auth_api.authenticate(super_admin.creds)
     return super_admin
+
 
 @pytest.fixture(scope="function")
 def creation_user_data(test_user: RequestUserRegisterModel):
@@ -137,6 +142,7 @@ def creation_user_data(test_user: RequestUserRegisterModel):
         password=test_user.password,
     )
 
+
 @pytest.fixture
 def common_user(user_session, super_admin, creation_user_data):
     new_session = user_session()
@@ -145,7 +151,7 @@ def common_user(user_session, super_admin, creation_user_data):
         creation_user_data.email,
         creation_user_data.password,
         [Roles.USER.value],
-        new_session
+        new_session,
     )
     super_admin.api.user_api.create_user(creation_user_data)
     common_user.api.auth_api.authenticate(common_user.creds)
@@ -168,7 +174,7 @@ def common_admin(user_session, super_admin, creation_user_data):
         creation_user_data.email,
         creation_user_data.password,
         [Roles.ADMIN.value],
-        new_session
+        new_session,
     )
     common_admin.api.auth_api.authenticate(common_admin.creds)
     return common_admin

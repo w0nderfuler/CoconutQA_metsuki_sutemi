@@ -1,4 +1,4 @@
-from Cinescope.constants import BASE_URL, AUTH_URL, LOGIN_ENDPOINT, REGISTER_ENDPOINT
+from Cinescope.constants import AUTH_URL, LOGIN_ENDPOINT, REGISTER_ENDPOINT
 from Cinescope.custom_requester.custom_requester import CustomRequester
 from Cinescope.resources.models.user_model import UserLoginModel
 

@@ -2,6 +2,7 @@ from Cinescope.DataGeneratorMovies import MovieData
 
 import pytest
 
+
 class TestSuperAdminMethodsPositive:
     def test_get(self, super_admin):  # список фильмов
         response = super_admin.api.movies_api.get_movies()
@@ -12,12 +13,10 @@ class TestSuperAdminMethodsPositive:
         assert "pageCount" in response_data
 
     def test_get_params(self, super_admin):
-        params = {"page":1,
-                  "minPrice":1,
-                  "maxPrice":1000}
+        params = {"page": 1, "minPrice": 1, "maxPrice": 1000}
         response = super_admin.api.movies_api.get_movies(params=params)
         response_data = response.json()
-        assert response_data["page"]== params["page"]
+        assert response_data["page"] == params["page"]
         assert "movies" in response_data
         assert isinstance(response_data["movies"], list)
         movies = response_data["movies"]
@@ -26,11 +25,15 @@ class TestSuperAdminMethodsPositive:
             assert movie["price"] >= params["minPrice"]
             assert movie["price"] <= params["maxPrice"]
 
-    @pytest.mark.parametrize("params",
-                            [{"minPrice": 1, "maxPrice": 1000},
-                            {"locations": ["MSK", "SPB"]},
-                            {"genreId": 1}],
-                            ids=["price", "location", "genreId"],)
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"minPrice": 1, "maxPrice": 1000},
+            {"locations": ["MSK", "SPB"]},
+            {"genreId": 1},
+        ],
+        ids=["price", "location", "genreId"],
+    )
     def test_get_movies_filter_and_params(self, super_admin, params):
         response = super_admin.api.movies_api.get_movies(params=params)
         response_data = response.json()
@@ -76,7 +79,9 @@ class TestSuperAdminMethodsPositive:
             assert movie["genreId"] == created_published_movie["genreId"]
             assert params["minPrice"] <= movie["price"] <= params["maxPrice"]
 
-    def test_get_movie_id(self, super_admin, created_movie):  # запрашиваем конкретный фильм
+    def test_get_movie_id(
+        self, super_admin, created_movie
+    ):  # запрашиваем конкретный фильм
         movie_id = created_movie["id"]
         response = super_admin.api.movies_api.get_movie_by_id(movie_id)
         response_data = response.json()
@@ -85,13 +90,17 @@ class TestSuperAdminMethodsPositive:
         assert response_data["description"] == created_movie["description"]
         assert response_data["genreId"] == created_movie["genreId"]
 
-    def test_delete_movie_id(self, super_admin, movie_for_delete):  # удаляем фильм по id
+    def test_delete_movie_id(
+        self, super_admin, movie_for_delete
+    ):  # удаляем фильм по id
         movie_id = movie_for_delete["id"]
         response = super_admin.api.movies_api.delete_movie_by_id(movie_id)
         response_data = response.json()
         assert movie_id == response_data["id"]
 
-    def test_update_movie_body(self, super_admin, created_movie):  # обновляем имя и описание фильма
+    def test_update_movie_body(
+        self, super_admin, created_movie
+    ):  # обновляем имя и описание фильма
         movie_id = created_movie["id"]
         new_name = MovieData.generate_movie_data()
         update_data = {"name": new_name}
@@ -103,19 +112,28 @@ class TestSuperAdminMethodsPositive:
         "user_role, expected_status",
         [
             ("super_admin", 200),
-            ("common_admin", 403), #Должно возвращать 403, но фильм удаляется поэтому 200
+            (
+                "common_admin",
+                403,
+            ),  # Должно возвращать 403, но фильм удаляется поэтому 200
             ("common_user", 403),
         ],
         ids=["Super admin", "Admin", "User"],
     )
-    def test_role_delete_movie(self, request, user_role, expected_status, movie_for_delete):
+    def test_role_delete_movie(
+        self, request, user_role, expected_status, movie_for_delete
+    ):
         user = request.getfixturevalue(user_role)
         movie_id = movie_for_delete["id"]
-        response = user.api.movies_api.delete_movie_by_id(movie_id, expected_status=expected_status)
+        response = user.api.movies_api.delete_movie_by_id(
+            movie_id, expected_status=expected_status
+        )
         if expected_status == 200:
             response_data = response.json()
             assert movie_id == response_data["id"]
-            get_response = user.api.movies_api.get_movie_by_id(movie_id, expected_status=404)
+            get_response = user.api.movies_api.get_movie_by_id(
+                movie_id, expected_status=404
+            )
             assert get_response.status_code == 404
         else:
             response_data = response.json()
@@ -124,48 +142,68 @@ class TestSuperAdminMethodsPositive:
 
 class TestSuperAdminMethodsNegative:
     def test_get_invalid_params(self, super_admin):
-        invalid_page = MovieData.invalid_movie_id() #получаем фильм с неверными параметрами
-        response = super_admin.api.movies_api.get_movies(params={"page":invalid_page}, expected_status=400)
+        invalid_page = (
+            MovieData.invalid_movie_id()
+        )  # получаем фильм с неверными параметрами
+        response = super_admin.api.movies_api.get_movies(
+            params={"page": invalid_page}, expected_status=400
+        )
         assert response.status_code == 400
 
-    def test_post_invalid(self, super_admin): #создать фильм с пустым именем
+    def test_post_invalid(self, super_admin):  # создать фильм с пустым именем
         movie_data = MovieData.create_movie()
         movie_data["name"] = ""
-        response = super_admin.api.movies_api.create_movie(movie_data, expected_status=400)
+        response = super_admin.api.movies_api.create_movie(
+            movie_data, expected_status=400
+        )
         assert response.status_code == 400
         error_data = response.json()
         assert "message" in error_data
 
-    def test_post_duplicate_movie_name(self, created_movie, super_admin): #создаем дубликат
+    def test_post_duplicate_movie_name(
+        self, created_movie, super_admin
+    ):  # создаем дубликат
         movie_data = MovieData.create_movie()
         movie_data["name"] = created_movie["name"]
-        response = super_admin.api.movies_api.create_movie(movie_data, expected_status=409)
+        response = super_admin.api.movies_api.create_movie(
+            movie_data, expected_status=409
+        )
         assert response.status_code == 409
         error_data = response.json()
         assert "message" in error_data
 
-    def test_get_by_invalid_id(self, super_admin): #получаем фильм с неправильным id
+    def test_get_by_invalid_id(self, super_admin):  # получаем фильм с неправильным id
         fake_movie_id = MovieData.invalid_movie_id()
         response = super_admin.api.movies_api.get_movie_by_id(
             movie_id=fake_movie_id, expected_status=404
         )
         assert response.status_code == 404
 
-    def test_delete_movie_negative_id(self, movie_for_delete, super_admin): #удаляем с неверным id
+    def test_delete_movie_negative_id(
+        self, movie_for_delete, super_admin
+    ):  # удаляем с неверным id
         fake_movie_id = MovieData.invalid_movie_id()
         response = super_admin.api.movies_api.delete_movie_by_id(
             movie_id=fake_movie_id, expected_status=404
         )
         assert response.status_code == 404
 
-    def test_delete_movie_invalid_id(self, super_admin, movie_for_delete): #удаляем с неправильным форматом id
+    def test_delete_movie_invalid_id(
+        self, super_admin, movie_for_delete
+    ):  # удаляем с неправильным форматом id
         response = super_admin.api.movies_api.delete_movie_by_id(
             movie_id="a", expected_status=404
         )
-        assert response.status_code == 404 #Возвращает 404, ожидаемый результат по Swagger 400
+        assert (
+            response.status_code == 404
+        )  # Возвращает 404, ожидаемый результат по Swagger 400
 
-    @pytest.mark.xfail(reason="BUG: PATCH /movies/{id} возвращает 404 вместо 400 для пустого name")
-    def test_update_movie_invalid_name(self, created_published_movie, super_admin): #создаем и обновляем фильм с пустым именем
+    @pytest.mark.xfail(
+        reason="BUG: PATCH /movies/{id} возвращает 404 вместо 400 для пустого name"
+    )
+    def test_update_movie_invalid_name(
+        self, created_published_movie, super_admin
+    ):  # создаем и обновляем фильм с пустым именем
         movie_data = created_published_movie["id"]
         update_movie_data = {"name": " "}
         response = super_admin.api.movies_api.patch_movie(
@@ -173,11 +211,17 @@ class TestSuperAdminMethodsNegative:
         )
         assert response.status_code == 400
 
+
 class TestUserMethodNegative:
-    def test_post_user_without_rights_create_movie(self, common_user):  # создание фильма
+    def test_post_user_without_rights_create_movie(
+        self, common_user
+    ):  # создание фильма
         movie_data = MovieData.create_movie()
-        response = common_user.api.movies_api.create_movie(movie_data, expected_status=403)
+        response = common_user.api.movies_api.create_movie(
+            movie_data, expected_status=403
+        )
         assert response.status_code == 403
+
 
 class TestAdminMethod:
     def test_common_admin_fixture(self, super_admin, common_admin):

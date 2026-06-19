@@ -2,7 +2,10 @@ from faker import Faker
 import random
 import string
 from uuid import uuid4
+
 fake = Faker("ru_Ru")
+
+
 class MovieData:
     @staticmethod
     def create_movie():
@@ -27,11 +30,11 @@ class MovieData:
 
     @staticmethod
     def generate_email():
-        return f'test_{uuid4().hex}@gmail.com'
+        return f"test_{uuid4().hex}@gmail.com"
 
     @staticmethod
     def generate_invalid_email():
-        return f'test_{uuid4().hex}gmail.com'
+        return f"test_{uuid4().hex}gmail.com"
 
     @staticmethod
     def generate_password(length=12):
