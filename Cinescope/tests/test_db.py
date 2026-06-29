@@ -19,7 +19,7 @@ class TestDBSession:
     @allure.title("Создание пользователя и сохранение его в БД")
     @pytest.mark.api
     @pytest.mark.smoke
-    @pytest.mark.db
+    @pytest.mark.bd
 
     def test_db_requests(self, super_admin, db_helper, created_test_user):
         with allure.step("Создание пользователя и сохранение его в БД"):
@@ -28,7 +28,7 @@ class TestDBSession:
 
     @pytest.mark.api
     @pytest.mark.smoke
-    @pytest.mark.db
+    @pytest.mark.bd
     @allure.title("Тест генерации данных не созданного фильма и отсутствия его в БД")
     def test_db_absent_movie(self, super_admin, db_helper):
         movie_data = MovieData.create_movie()
@@ -39,7 +39,7 @@ class TestDBSession:
 
     @pytest.mark.api
     @pytest.mark.smoke
-    @pytest.mark.db
+    @pytest.mark.bd
     @allure.title("Тест поиска созданного фильма в БД")
     def test_db_get_movie_by_id(self, super_admin, db_helper):
         movie_data = MovieData.create_movie()
@@ -53,7 +53,7 @@ class TestDBSession:
 
     @pytest.mark.api
     @pytest.mark.smoke
-    @pytest.mark.db
+    @pytest.mark.bd
     @allure.title("Тест на удаления фильма и отсутствия его в БД")
     def test_db_delete_movie(self, super_admin, db_helper, movie_for_delete):
         movie_id = movie_for_delete["id"]
@@ -69,7 +69,7 @@ class TestDBSession:
 
     @pytest.mark.api
     @pytest.mark.smoke
-    @pytest.mark.db
+    @pytest.mark.bd
     @allure.title("Тест полного сценария от создания до удаления фильма из БД")
     def test_movie_create_and_delete_reflected_in_db(self, super_admin, db_helper):
         with allure.step("Генерация данных"):
