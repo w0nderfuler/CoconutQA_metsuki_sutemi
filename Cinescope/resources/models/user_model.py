@@ -34,7 +34,7 @@ class ResponseUserRegisterModel(BaseModel):
     )
     fullName: str
     verified: bool
-    banned: bool
+    banned: bool | None = None
     roles: list[Roles]
     createdAt: str
 

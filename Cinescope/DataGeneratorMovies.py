@@ -2,7 +2,8 @@ from faker import Faker
 import random
 import string
 from uuid import uuid4
-
+import datetime
+from Cinescope.resources.roles import Roles
 fake = Faker("ru_Ru")
 
 
@@ -23,6 +24,17 @@ class MovieData:
     @staticmethod
     def generate_movie_data():
         return fake.catch_phrase()
+
+    @staticmethod
+    def generate_random_int(max_value=10):
+        return fake.random_int(min=1, max=max_value)
+
+    @staticmethod
+    def generate_account_transaction_data(user_prefix: str, balance: int) -> dict:
+        return {
+            "user": f"{user_prefix}_{fake.uuid4()[:8]}",
+            "balance": balance,
+        }
 
     @staticmethod
     def invalid_movie_id():
@@ -84,3 +96,18 @@ class MovieData:
         password_chars += random.choices(allowed_chars, k=length - 2)
         random.shuffle(password_chars)
         return "".join(password_chars)
+
+    @staticmethod
+    def generate_user_data() -> dict:
+        return {
+            "id": f'{uuid4()}',
+            "email": MovieData.generate_email(),
+            "full_name": f"{fake.first_name()} {fake.last_name()}",
+            "password": MovieData.generate_password(),
+            "created_at": datetime.datetime.now(),
+            "updated_at": datetime.datetime.now(),
+            "verified": False,
+            "banned": False,
+            "roles": f"{{{Roles.USER.value}}}"
+
+        }

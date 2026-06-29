@@ -7,7 +7,7 @@ class AuthAdmin(CustomRequester):
     def __init__(self, session):
         super().__init__(session=session, base_url=AUTH_URL)
 
-    def login_admin(self, admin_data, expected_status=200):
+    def login_admin(self, admin_data, expected_status=201):
         return self.send_request(
             method="POST",
             endpoint=LOGIN_ENDPOINT,

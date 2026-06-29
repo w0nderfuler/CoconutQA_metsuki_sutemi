@@ -1,5 +1,8 @@
 import pytest
 import requests
+import allure
+import random
+import time
 from faker import Faker
 from Cinescope.DataGeneratorMovies import MovieData
 from Cinescope.api.api_manager import ApiManager
@@ -13,7 +16,11 @@ from Cinescope.resources.models.user_model import (
     UserLoginModel,
     UserUpdateModel,
 )
-
+from sqlalchemy.orm import Session
+from collections.abc import Generator
+from Cinescope.db_requester.db_client import engine, get_db_session
+from Cinescope.db_requester.db_helper import DBHelper
+from Cinescope.db_requester.models import AccountTransactionTemplate, Base
 faker = Faker()
 
 
@@ -178,3 +185,61 @@ def common_admin(user_session, super_admin, creation_user_data):
     )
     common_admin.api.auth_api.authenticate(common_admin.creds)
     return common_admin
+
+@pytest.fixture(scope="module")
+def db_session() -> Generator[Session, None, None]:
+    session = get_db_session()
+
+    try:
+        yield session
+    finally:
+        session.close()
+
+@pytest.fixture(scope="function")
+def db_helper(db_session) -> DBHelper:
+    db_helper = DBHelper(db_session)
+    return db_helper
+
+@pytest.fixture(scope="function")
+def created_test_user(db_helper):
+    user = db_helper.create_test_user(MovieData.generate_user_data())
+    yield user
+    if db_helper.get_user_by_id(user.id):
+        db_helper.delete_user(user)
+
+
+@pytest.fixture(scope="function")
+def account_transaction_pair(db_session):
+    Base.metadata.create_all(bind=engine)
+
+    stan = AccountTransactionTemplate(
+        **MovieData.generate_account_transaction_data("Stan", 1000)
+    )
+    bob = AccountTransactionTemplate(
+        **MovieData.generate_account_transaction_data("Bob", 500)
+    )
+
+    db_session.add_all([stan, bob])
+    db_session.commit()
+    db_session.refresh(stan)
+    db_session.refresh(bob)
+
+    yield stan, bob
+
+    db_session.rollback()
+    for account in (stan, bob):
+        account_from_db = (
+            db_session.query(AccountTransactionTemplate)
+            .filter_by(user=account.user)
+            .one_or_none()
+        )
+        if account_from_db:
+            db_session.delete(account_from_db)
+    db_session.commit()
+
+
+@pytest.fixture  # была добавлена в файл conftest.py
+def delay_between_retries():
+    time.sleep(2)  # Задержка в 2 секунды\ это не обязательно но
+    yield  # нужно понимать что такая возможность имеется
+
