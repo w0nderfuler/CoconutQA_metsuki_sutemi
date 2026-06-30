@@ -62,7 +62,7 @@ class TestDBSession:
             movie_from_db = db_helper.get_movie_by_name(movie_name)
         assert movie_from_db is not None
         with allure.step("Удаление фильма"):
-            movie_is_missing_db_response_ = super_admin.api.movies_api.delete_movie_by_id(movie_id)
+            super_admin.api.movies_api.delete_movie_by_id(movie_id)
         with allure.step("Проверка отсутствия фильма в БД"):
             movie_is_missing_db = db_helper.get_movie_by_name(movie_name)
         assert movie_is_missing_db is None

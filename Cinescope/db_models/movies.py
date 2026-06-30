@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String,Integer, Boolean, DateTime
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import declarative_base
 from typing import Any, Dict
 
@@ -14,7 +14,7 @@ class MovieDBModel(Base):
     image_url = Column(String)
     location = Column(String)
     published = Column(Boolean)
-    rating = Column(Integer)
+    rating = Column(Float, default=0.0)
     genre_id = Column(Integer)
     created_at = Column(DateTime)
 

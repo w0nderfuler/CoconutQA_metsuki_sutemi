@@ -16,6 +16,7 @@ from Cinescope.resources.models.user_model import (
     UserLoginModel,
     UserUpdateModel,
 )
+from Cinescope.resources.models.movie_model import MovieModel
 from sqlalchemy.orm import Session
 from collections.abc import Generator
 from Cinescope.db_requester.db_client import engine, get_db_session
@@ -76,7 +77,7 @@ def login_admin(api_manager, test_admin):
 def created_movie(super_admin):
     movie_data = MovieData.create_movie()
     response = super_admin.api.movies_api.create_movie(movie_data)
-    movie = response.json()
+    movie = MovieModel.model_validate(response.json()).model_dump(mode="json")
     movie_id = movie["id"]
 
     yield movie
@@ -89,7 +90,7 @@ def created_published_movie(super_admin):
     movie_data["published"] = True
 
     response = super_admin.api.movies_api.create_movie(movie_data)
-    movie = response.json()
+    movie = MovieModel.model_validate(response.json()).model_dump(mode="json")
     movie_id = movie["id"]
 
     yield movie
@@ -102,7 +103,7 @@ def movie_for_delete(super_admin):
     movie_data = MovieData.create_movie()
     response = super_admin.api.movies_api.create_movie(movie_data)
     print(response.json())
-    movie = response.json()
+    movie = MovieModel.model_validate(response.json()).model_dump(mode="json")
     movie_id = movie["id"]
     yield movie
     try:
@@ -240,6 +241,5 @@ def account_transaction_pair(db_session):
 
 @pytest.fixture  # была добавлена в файл conftest.py
 def delay_between_retries():
-    time.sleep(2)  # Задержка в 2 секунды\ это не обязательно но
+    time.sleep(2)  # Задержка в 2 секунды\ это не обязательно, но
     yield  # нужно понимать что такая возможность имеется
-
